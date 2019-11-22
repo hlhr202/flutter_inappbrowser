@@ -395,7 +395,7 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
     // If the current app package isn't a target for this URL, then use
     // the normal launch behavior
     if (!hasCurrentPackage || targetIntents.size() == 0) {
-      activity.startActivity(intent);
+      start(activity, intent);
     }
     // If there's only one possible intent, launch it directly
     else if (targetIntents.size() == 1) {
@@ -407,6 +407,11 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
       chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[]{}));
       activity.startActivity(chooser);
     }
+  }
+
+  private void start(Activity activity, Intent intent) {
+    activity.startActivity(intent);
+    overridePendingTransition(R.anim.activity_slide_in_right, R.anim.activity_slide_out_right);
   }
 
   public void open(Activity activity, String uuid, String uuidFallback, String url, HashMap<String, Object> options, Map<String, String> headers, boolean useChromeSafariBrowser, HashMap<String, Object> optionsFallback, Result result) {
