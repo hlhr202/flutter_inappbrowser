@@ -46,6 +46,12 @@ public class InAppBrowserActivity extends AppCompatActivity {
   public String fromActivity;
 
   @Override
+  public void startActivity(Intent intent) {
+    super.startActivity(intent);
+    overridePendingTransition(R.anim.activity_slide_in_right, R.anim.activity_slide_out_right);
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
