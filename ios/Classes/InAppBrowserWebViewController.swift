@@ -232,6 +232,13 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         
         self.modalPresentationStyle = UIModalPresentationStyle(rawValue: (browserOptions?.presentationStyle)!)!
         self.modalTransitionStyle = UIModalTransitionStyle(rawValue: (browserOptions?.transitionStyle)!)!
+        if #available(iOS 13.0, *) {
+            self.isModalInPresentation = true // available in IOS13
+        }
+    }
+    
+    func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+        return false
     }
     
     func loadUrl(url: URL, headers: [String: String]?) {
