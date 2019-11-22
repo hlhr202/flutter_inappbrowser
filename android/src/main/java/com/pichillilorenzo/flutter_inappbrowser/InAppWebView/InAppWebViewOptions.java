@@ -25,4 +25,5 @@ public class InAppWebViewOptions extends Options {
   public boolean safeBrowsingEnabled = true;
   public boolean transparentBackground = false;
   public String mixedContentMode = "";
+  public boolean enableDebug = false;
 }

@@ -203,6 +203,13 @@ public class InAppWebView extends WebView {
         }
       }
     }
+
+    if (options.enableDebug) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        WebView.setWebContentsDebuggingEnabled(true);
+      }
+    }
+
   }
 
   public void loadUrl(String url, MethodChannel.Result result) {
