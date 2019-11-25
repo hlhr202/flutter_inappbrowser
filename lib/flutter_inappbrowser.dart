@@ -354,6 +354,18 @@ class InAppBrowser {
     return options;
   }
 
+  Future<bool> setLightStatusBar() async {
+    Map<String, dynamic> args = <String, dynamic>{};
+    args.putIfAbsent("uuid", () => uuid);
+    return await _ChannelManager.channel.invokeMethod('setLightStatusBar', args);
+  }
+
+  Future<bool> setDarkStatusBar() async {
+    Map<String, dynamic> args = <String, dynamic>{};
+    args.putIfAbsent("uuid", () => uuid);
+    return await _ChannelManager.channel.invokeMethod('setDarkStatusBar', args);
+  }
+
   ///Returns `true` if the [InAppBrowser] instance is opened, otherwise `false`.
   bool isOpened() {
     return this._isOpened;

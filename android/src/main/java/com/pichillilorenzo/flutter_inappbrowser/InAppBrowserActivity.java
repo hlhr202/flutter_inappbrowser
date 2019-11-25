@@ -1,6 +1,6 @@
 package com.pichillilorenzo.flutter_inappbrowser;
 
-import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -30,6 +30,10 @@ import java.util.Map;
 import io.flutter.app.FlutterActivity;
 import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.MethodChannel;
+import qiu.niorgai.StatusBarCompat;
+
+import static qiu.niorgai.StatusBarCompat.cancelLightStatusBar;
+import static qiu.niorgai.StatusBarCompat.changeToLightStatusBar;
 
 public class InAppBrowserActivity extends AppCompatActivity {
 
@@ -46,14 +50,11 @@ public class InAppBrowserActivity extends AppCompatActivity {
   public String fromActivity;
 
   @Override
-  public void startActivity(Intent intent) {
-    super.startActivity(intent);
-    overridePendingTransition(R.anim.activity_slide_in_right, R.anim.activity_slide_out_right);
-  }
-
-  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    StatusBarCompat.translucentStatusBar(this, true);
+    getWindow().setStatusBarColor(0x01000000);
 
     setContentView(R.layout.activity_web_view);
 
@@ -313,7 +314,8 @@ public class InAppBrowserActivity extends AppCompatActivity {
       isHidden = true;
       Intent openActivity = new Intent(this, Class.forName(fromActivity));
       openActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-      startActivityIfNeeded(openActivity, 0);
+      startActivityIfNeeded(openActivity, 0,
+              ActivityOptions.makeCustomAnimation(this, 0, R.anim.slide_out_right).toBundle());
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
       Log.d(LOG_TAG, e.getMessage());
@@ -463,6 +465,16 @@ public class InAppBrowserActivity extends AppCompatActivity {
     if (webView != null)
       return webView.getCopyBackForwardList();
     return null;
+  }
+
+  public boolean setLightStatusBar() {
+    changeToLightStatusBar(this);
+    return true;
+  }
+
+  public boolean setDarkStatusBar() {
+    cancelLightStatusBar(this);
+    return true;
   }
 
 }

@@ -66,7 +66,7 @@ class MyInappBrowser extends InAppBrowser {
       messageLevel: ${consoleMessage.messageLevel}
    """);
  }
-  
+
 }
 
 class WebviewExampleScreen extends StatefulWidget {
@@ -85,12 +85,24 @@ class _WebviewExampleScreenState extends State<WebviewExampleScreen> {
   Widget build(BuildContext context) {
     return new Center(
       child: new RaisedButton(
-          onPressed: ()  {
-            widget.browser.open(
+          onPressed: () async {
+            await widget.browser.open(
                 url: "https://google.com",
                 options: {
                   "useShouldOverrideUrlLoading": true,
                   "useOnLoadResource": true,
+                  "javascriptEnabled": true,
+                  "javaScriptCanOpenWindowsAutomatically": true,
+                  "mediaPlaybackRequiresUserGesture": true,
+                  "domStorageEnabled": true,
+                  "transparentBackground": true,
+                  "toolbarTop": false,
+                  "hideUrlBar": true,
+                  "hideTitleBar": true,
+                  "toolbarBottom": false,
+                  "safeBrowsingEnabled": false,
+                  "presentationStyle": 0,
+                  "enableDebug": true,
                 }
             );
           },

@@ -22,7 +22,7 @@
 package com.pichillilorenzo.flutter_inappbrowser;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -151,7 +151,7 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
                       Log.d(LOG_TAG, "loading in dialer");
                       Intent intent = new Intent(Intent.ACTION_DIAL);
                       intent.setData(Uri.parse(url));
-                      activity.startActivity(intent);
+                      start(activity, intent);
                     } catch (android.content.ActivityNotFoundException e) {
                       Log.e(LOG_TAG, "Error dialing " + url + ": " + e.toString());
                     }
@@ -298,6 +298,22 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
       case "getCopyBackForwardList":
         result.success(getCopyBackForwardList(uuid));
         break;
+      case "setLightStatusBar":
+        activity.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            result.success(setLightStatusBar(uuid));
+          }
+        });
+        break;
+      case "setDarkStatusBar":
+        activity.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            result.success(setDarkStatusBar(uuid));
+          }
+        });
+        break;
       default:
         result.notImplemented();
     }
@@ -332,6 +348,22 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
     if (inAppBrowserActivity != null) {
       inAppBrowserActivity.injectStyleFile(urlFile);
     }
+  }
+
+  private boolean setLightStatusBar(String uuid) {
+    final InAppBrowserActivity inAppBrowserActivity = webViewActivities.get(uuid);
+    if (inAppBrowserActivity != null) {
+      return inAppBrowserActivity.setLightStatusBar();
+    }
+    return true;
+  }
+
+  private boolean setDarkStatusBar(String uuid) {
+    final InAppBrowserActivity inAppBrowserActivity = webViewActivities.get(uuid);
+    if (inAppBrowserActivity != null) {
+      inAppBrowserActivity.setDarkStatusBar();
+    }
+    return true;
   }
 
   public static String getMimeType(String url) {
@@ -399,19 +431,19 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
     }
     // If there's only one possible intent, launch it directly
     else if (targetIntents.size() == 1) {
-      activity.startActivity(targetIntents.get(0));
+      start(activity, targetIntents.get(0));
     }
     // Otherwise, show a custom chooser without the current app listed
     else if (targetIntents.size() > 0) {
       Intent chooser = Intent.createChooser(targetIntents.remove(targetIntents.size() - 1), null);
       chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[]{}));
-      activity.startActivity(chooser);
+      start(activity, chooser);
     }
   }
 
   private void start(Activity activity, Intent intent) {
-    activity.startActivity(intent);
-    overridePendingTransition(R.anim.activity_slide_in_right, R.anim.activity_slide_out_right);
+    activity.startActivity(intent,
+            ActivityOptions.makeCustomAnimation(activity, R.anim.slide_in_right, R.anim.empty).toBundle());
   }
 
   public void open(Activity activity, String uuid, String uuidFallback, String url, HashMap<String, Object> options, Map<String, String> headers, boolean useChromeSafariBrowser, HashMap<String, Object> optionsFallback, Result result) {
@@ -450,7 +482,7 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
 
     if (intent != null) {
       intent.putExtras(extras);
-      activity.startActivity(intent);
+      start(activity, intent);
       result.success(true);
       return;
     }
@@ -471,7 +503,7 @@ public class InAppBrowserFlutterPlugin implements MethodCallHandler {
     extras.putString("baseUrl", baseUrl);
 
     intent.putExtras(extras);
-    activity.startActivity(intent);
+    start(activity, intent);
   }
 
   private String getUrl(String uuid) {
