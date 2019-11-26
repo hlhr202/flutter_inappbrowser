@@ -250,16 +250,18 @@ class InAppBrowser {
     await ChannelManager.channel.invokeMethod('setOptions', args);
   }
 
-  Future<bool> setLightStatusBar() async {
+  Future<void> setLightStatusBar() async {
+    this.throwIsNotOpened();
     Map<String, dynamic> args = <String, dynamic>{};
     args.putIfAbsent("uuid", () => uuid);
-    return await ChannelManager.channel.invokeMethod('setLightStatusBar', args);
+    await ChannelManager.channel.invokeMethod('setLightStatusBar', args);
   }
 
-  Future<bool> setDarkStatusBar() async {
+  Future<void> setDarkStatusBar() async {
+    this.throwIsNotOpened();
     Map<String, dynamic> args = <String, dynamic>{};
     args.putIfAbsent("uuid", () => uuid);
-    return await ChannelManager.channel.invokeMethod('setDarkStatusBar', args);
+    await ChannelManager.channel.invokeMethod('setDarkStatusBar', args);
   }
 
   ///Gets the current [InAppBrowser] options as a `Map`. Returns `null` if the options are not setted yet.

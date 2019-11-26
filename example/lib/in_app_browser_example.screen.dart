@@ -90,11 +90,15 @@ class _InAppBrowserExampleScreenState extends State<InAppBrowserExampleScreen> {
                 widget.browser.openFile(
                     assetFilePath: "assets/index.html",
                     options: InAppBrowserClassOptions(
+                        inAppBrowserOptions: InAppBrowserOptions(toolbarTop: false),
                         inAppWebViewWidgetOptions: InAppWebViewWidgetOptions(
                             inAppWebViewOptions: InAppWebViewOptions(
                             useShouldOverrideUrlLoading: true,
                             useOnLoadResource: true,
                     ))));
+                Future.delayed(Duration(seconds: 2), () {
+                  widget.browser.setLightStatusBar();
+                });
               },
               child: Text("Open Webview Browser")),
         ));

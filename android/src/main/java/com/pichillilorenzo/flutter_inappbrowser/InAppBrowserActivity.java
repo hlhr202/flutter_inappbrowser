@@ -1,5 +1,6 @@
 package com.pichillilorenzo.flutter_inappbrowser;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -471,14 +472,12 @@ public class InAppBrowserActivity extends AppCompatActivity {
     return null;
   }
 
-  public boolean setLightStatusBar() {
+  public void setLightStatusBar() {
     changeToLightStatusBar(this);
-    return true;
   }
 
-  public boolean setDarkStatusBar() {
+  public void setDarkStatusBar() {
     cancelLightStatusBar(this);
-    return true;
   }
 
   public void startSafeBrowsing(MethodChannel.Result result) {

@@ -22,6 +22,7 @@
 package com.pichillilorenzo.flutter_inappbrowser;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -312,7 +313,9 @@ public class InAppBrowser implements MethodChannel.MethodCallHandler {
         activity.runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            result.success(setLightStatusBar(uuid));
+            Log.d(LOG_TAG, "setLightStatusBar");
+            setLightStatusBar(uuid);
+            result.success(true);
           }
         });
         break;
@@ -320,7 +323,9 @@ public class InAppBrowser implements MethodChannel.MethodCallHandler {
         activity.runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            result.success(setDarkStatusBar(uuid));
+            Log.d(LOG_TAG, "setDarkStatusBar");
+            setDarkStatusBar(uuid);
+            result.success(true);
           }
         });
         break;
@@ -471,7 +476,8 @@ public class InAppBrowser implements MethodChannel.MethodCallHandler {
 
     if (intent != null) {
       intent.putExtras(extras);
-      activity.startActivity(intent);
+      activity.startActivity(intent,
+              ActivityOptions.makeCustomAnimation(activity, R.anim.slide_in_right, R.anim.empty).toBundle());
       result.success(true);
       return;
     }
@@ -753,19 +759,15 @@ public class InAppBrowser implements MethodChannel.MethodCallHandler {
     }
   }
 
-  private boolean setLightStatusBar(String uuid) {
-    final InAppBrowserActivity inAppBrowserActivity = webViewActivities.get(uuid);
-    if (inAppBrowserActivity != null) {
-      return inAppBrowserActivity.setLightStatusBar();
-    }
-    return true;
+  private void setLightStatusBar(String uuid) {
+    InAppBrowserActivity inAppBrowserActivity = webViewActivities.get(uuid);
+    if (inAppBrowserActivity != null)
+      inAppBrowserActivity.setLightStatusBar();
   }
 
-  private boolean setDarkStatusBar(String uuid) {
-    final InAppBrowserActivity inAppBrowserActivity = webViewActivities.get(uuid);
-    if (inAppBrowserActivity != null) {
+  private void setDarkStatusBar(String uuid) {
+    InAppBrowserActivity inAppBrowserActivity = webViewActivities.get(uuid);
+    if (inAppBrowserActivity != null)
       inAppBrowserActivity.setDarkStatusBar();
-    }
-    return true;
   }
 }
