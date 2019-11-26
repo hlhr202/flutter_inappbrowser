@@ -424,8 +424,8 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
         webViewController.initURL = url
         webViewController.initHeaders = headers
         webViewController.navigationDelegate = self
-        webViewController.modalPresentationStyle = UIModalPresentationStyle(rawValue: (browserOptions?.presentationStyle)!)!
-        webViewController.modalTransitionStyle = UIModalTransitionStyle(rawValue: (browserOptions?.transitionStyle)!)!
+        webViewController.modalPresentationStyle = UIModalPresentationStyle(rawValue: (browserOptions.presentationStyle))!
+        webViewController.modalTransitionStyle = UIModalTransitionStyle(rawValue: (browserOptions.transitionStyle))!
         if #available(iOS 13.0, *) {
             webViewController.isModalInPresentation = true // available in IOS13
         }
@@ -498,12 +498,12 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
         webViewController.initEncoding = encoding
         webViewController.initBaseUrl = baseUrl
         webViewController.navigationDelegate = self
-        webViewController.modalPresentationStyle = UIModalPresentationStyle(rawValue: (browserOptions?.presentationStyle)!)!
-        webViewController.modalTransitionStyle = UIModalTransitionStyle(rawValue: (browserOptions?.transitionStyle)!)!
+        webViewController.modalPresentationStyle = UIModalPresentationStyle(rawValue: (browserOptions.presentationStyle))!
+        webViewController.modalTransitionStyle = UIModalTransitionStyle(rawValue: (browserOptions.transitionStyle))!
         if #available(iOS 13.0, *) {
             webViewController.isModalInPresentation = true // available in IOS13
         }
-        
+
         if browserOptions.hidden {
             webViewController.view.isHidden = true
             tmpController.present(webViewController, animated: false, completion: {() -> Void in
