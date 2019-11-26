@@ -14,9 +14,10 @@ public class FlutterWebViewController: NSObject, FlutterPlatformView {
     var webView: InAppWebView?
     var viewId: Int64 = 0
     var channel: FlutterMethodChannel?
-    
+
     init(registrar: FlutterPluginRegistrar, withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: NSDictionary) {
         super.init()
+        
         self.registrar = registrar
         self.viewId = viewId
         
@@ -28,7 +29,7 @@ public class FlutterWebViewController: NSObject, FlutterPlatformView {
         
         let options = InAppWebViewOptions()
         options.parse(options: initialOptions)
-        let preWebviewConfiguration = InAppWebView.preWKWebViewConfiguration(options: options, webViewProcessPool: SwiftFlutterPlugin.webViewProcessPool)
+        let preWebviewConfiguration = InAppWebView.preWKWebViewConfiguration(options: options)
         
         webView = InAppWebView(frame: frame, configuration: preWebviewConfiguration, IABController: nil, IAWController: self)
         let channelName = "com.pichillilorenzo/flutter_inappwebview_" + String(viewId)
@@ -38,6 +39,40 @@ public class FlutterWebViewController: NSObject, FlutterPlatformView {
         webView!.options = options
         webView!.prepare()
         
+        if #available(iOS 11.0, *) {
+            self.webView!.configuration.userContentController.removeAllContentRuleLists()
+            if let contentBlockers = webView!.options?.contentBlockers, contentBlockers.count > 0 {
+                do {
+                    let jsonData = try JSONSerialization.data(withJSONObject: contentBlockers, options: [])
+                    let blockRules = String(data: jsonData, encoding: String.Encoding.utf8)
+                    WKContentRuleListStore.default().compileContentRuleList(
+                        forIdentifier: "ContentBlockingRules",
+                        encodedContentRuleList: blockRules) { (contentRuleList, error) in
+                            
+                            if let error = error {
+                                print(error.localizedDescription)
+                                return
+                            }
+                            
+                            let configuration = self.webView!.configuration
+                            configuration.userContentController.add(contentRuleList!)
+                            
+                            self.load(initialUrl: initialUrl, initialFile: initialFile, initialData: initialData, initialHeaders: initialHeaders)
+                    }
+                    return
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+        }
+        load(initialUrl: initialUrl, initialFile: initialFile, initialData: initialData, initialHeaders: initialHeaders)
+    }
+    
+    public func view() -> UIView {
+        return webView!
+    }
+    
+    public func load(initialUrl: String, initialFile: String?, initialData: [String: String]?, initialHeaders: [String: String]) {
         if initialFile != nil {
             do {
                 try webView!.loadFile(url: initialFile!, headers: initialHeaders)
@@ -58,10 +93,6 @@ public class FlutterWebViewController: NSObject, FlutterPlatformView {
         else {
             webView!.loadUrl(url: URL(string: initialUrl)!, headers: initialHeaders)
         }
-    }
-    
-    public func view() -> UIView {
-        return webView!
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -130,33 +161,33 @@ public class FlutterWebViewController: NSObject, FlutterPlatformView {
                     result(false)
                 }
                 break
-            case "injectScriptCode":
+            case "evaluateJavascript":
                 if webView != nil {
                     let source = (arguments!["source"] as? String)!
-                    webView!.injectScriptCode(source: source, result: result)
+                    webView!.evaluateJavascript(source: source, result: result)
                 }
                 else {
                     result("")
                 }
                 break
-            case "injectScriptFile":
+            case "injectJavascriptFileFromUrl":
                 if webView != nil {
                     let urlFile = (arguments!["urlFile"] as? String)!
-                    webView!.injectScriptFile(urlFile: urlFile)
+                    webView!.injectJavascriptFileFromUrl(urlFile: urlFile)
                 }
                 result(true)
                 break
-            case "injectStyleCode":
+            case "injectCSSCode":
                 if webView != nil {
                     let source = (arguments!["source"] as? String)!
-                    webView!.injectStyleCode(source: source)
+                    webView!.injectCSSCode(source: source)
                 }
                 result(true)
                 break
-            case "injectStyleFile":
+            case "injectCSSFileFromUrl":
                 if webView != nil {
                     let urlFile = (arguments!["urlFile"] as? String)!
-                    webView!.injectStyleFile(urlFile: urlFile)
+                    webView!.injectCSSFileFromUrl(urlFile: urlFile)
                 }
                 result(true)
                 break
@@ -229,25 +260,71 @@ public class FlutterWebViewController: NSObject, FlutterPlatformView {
             case "getCopyBackForwardList":
                 result((webView != nil) ? webView!.getCopyBackForwardList() : nil)
                 break
-            case "dispose":
-                dispose()
+            case "findAllAsync":
+                if webView != nil {
+                    let find = arguments!["find"] as! String
+                    webView!.findAllAsync(find: find, completionHandler: nil)
+                    result(true)
+                } else {
+                    result(false)
+                }
+                break
+            case "findNext":
+                if webView != nil {
+                    let forward = arguments!["forward"] as! Bool
+                    webView!.findNext(forward: forward, completionHandler: {(value, error) in
+                        if error != nil {
+                            result(FlutterError(code: "FlutterWebViewController", message: error?.localizedDescription, details: nil))
+                            return
+                        }
+                        result(true)
+                    })
+                } else {
+                    result(false)
+                }
+                break
+            case "clearMatches":
+                if webView != nil {
+                    webView!.clearMatches(completionHandler: {(value, error) in
+                        if error != nil {
+                            result(FlutterError(code: "FlutterWebViewController", message: error?.localizedDescription, details: nil))
+                            return
+                        }
+                        result(true)
+                    })
+                } else {
+                    result(false)
+                }
+                break
+            case "clearCache":
+                if webView != nil {
+                    webView!.clearCache()
+                }
+                result(true)
+                break
+            case "scrollTo":
+                if webView != nil {
+                    let x = arguments!["x"] as! Int
+                    let y = arguments!["y"] as! Int
+                    webView!.scrollTo(x: x, y: y)
+                }
+                result(true)
+                break
+            case "scrollBy":
+                if webView != nil {
+                    let x = arguments!["x"] as! Int
+                    let y = arguments!["y"] as! Int
+                    webView!.scrollBy(x: x, y: y)
+                }
+                result(true)
+                break
+            case "removeFromSuperview":
+                webView!.removeFromSuperview()
                 result(true)
                 break
             default:
                 result(FlutterMethodNotImplemented)
                 break
-        }
-    }
-    
-    public func dispose() {
-        if webView != nil {
-            webView!.IABController = nil
-            webView!.IAWController = nil
-            webView!.uiDelegate = nil
-            webView!.navigationDelegate = nil
-            webView!.scrollView.delegate = nil
-            webView!.stopLoading()
-            webView = nil
         }
     }
 }

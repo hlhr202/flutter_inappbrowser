@@ -113,7 +113,7 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
     
     override func viewWillAppear(_ animated: Bool) {
         if !viewPrepared {
-            let preWebviewConfiguration = InAppWebView.preWKWebViewConfiguration(options: webViewOptions, webViewProcessPool: SwiftFlutterPlugin.webViewProcessPool)
+            let preWebviewConfiguration = InAppWebView.preWKWebViewConfiguration(options: webViewOptions)
             self.webView = InAppWebView(frame: .zero, configuration: preWebviewConfiguration, IABController: self, IAWController: nil)
             self.containerWebView.addSubview(self.webView)
             prepareConstraints()
@@ -260,10 +260,6 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         if browserOptions?.closeButtonColor != "" {
             closeButton.tintColor = color(fromHexString: (browserOptions?.closeButtonColor)!)
         }
-    }
-    
-    func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
-        return false
     }
     
     func loadUrl(url: URL, headers: [String: String]?) {
