@@ -5,8 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 
 import com.pichillilorenzo.flutter_inappbrowser.InAppWebView.InAppWebView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +29,7 @@ public class JavaScriptBridgeInterface {
     "return new Promise(function(resolve, reject) {" +
     "  window." + name + "[_callHandlerID] = resolve;" +
     "});" +
-  "}";
+  "};";
 
   public JavaScriptBridgeInterface(Object obj) {
     if (obj instanceof InAppBrowserActivity)
@@ -35,7 +39,7 @@ public class JavaScriptBridgeInterface {
   }
 
   @JavascriptInterface
-  public void _callHandler(String handlerName, final String _callHandlerID, String args) {
+  public void _callHandler(final String handlerName, final String _callHandlerID, String args) {
     final Map<String, Object> obj = new HashMap<>();
     if (inAppBrowserActivity != null)
       obj.put("uuid", inAppBrowserActivity.uuid);
@@ -51,11 +55,17 @@ public class JavaScriptBridgeInterface {
         getChannel().invokeMethod("onCallJsHandler", obj, new MethodChannel.Result() {
           @Override
           public void success(Object json) {
+            InAppWebView webView = (inAppBrowserActivity != null) ? inAppBrowserActivity.webView : flutterWebView.webView;
+
+            if (webView == null) {
+              // The webview has already been disposed, ignore.
+              return;
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-              flutterWebView.webView.evaluateJavascript("window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];", null);
+              webView.evaluateJavascript("if(window." + name + "[" + _callHandlerID + "] != null) {window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];}", (ValueCallback<String>) null);
             }
             else {
-              flutterWebView.webView.loadUrl("javascript:window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];");
+              webView.loadUrl("javascript:if(window." + name + "[" + _callHandlerID + "] != null) {window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];}");
             }
           }
 
@@ -71,10 +81,9 @@ public class JavaScriptBridgeInterface {
         });
       }
     });
-
   }
 
   private MethodChannel getChannel() {
-    return (inAppBrowserActivity != null) ? InAppBrowserFlutterPlugin.channel : flutterWebView.channel;
+    return (inAppBrowserActivity != null) ? InAppBrowserFlutterPlugin.inAppBrowser.channel : flutterWebView.channel;
   }
 }

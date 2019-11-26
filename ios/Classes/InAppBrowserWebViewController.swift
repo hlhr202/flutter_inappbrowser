@@ -119,12 +119,35 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
             prepareConstraints()
             prepareWebView()
             
-            if self.initData == nil {
-                loadUrl(url: self.initURL!, headers: self.initHeaders)
+            if #available(iOS 11.0, *) {
+                if let contentBlockers = webView!.options?.contentBlockers, contentBlockers.count > 0 {
+                    do {
+                        let jsonData = try JSONSerialization.data(withJSONObject: contentBlockers, options: [])
+                        let blockRules = String(data: jsonData, encoding: String.Encoding.utf8)
+                        WKContentRuleListStore.default().compileContentRuleList(
+                            forIdentifier: "ContentBlockingRules",
+                            encodedContentRuleList: blockRules) { (contentRuleList, error) in
+                                
+                                if let error = error {
+                                    print(error.localizedDescription)
+                                    return
+                                }
+                                
+                                let configuration = self.webView!.configuration
+                                configuration.userContentController.add(contentRuleList!)
+                                
+                                self.initLoad(initURL: self.initURL, initData: self.initData, initMimeType: self.initMimeType, initEncoding: self.initEncoding, initBaseUrl: self.initBaseUrl, initHeaders: self.initHeaders)
+                                
+                                self.navigationDelegate?.onBrowserCreated(uuid: self.uuid, webView: self.webView)
+                        }
+                        return
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
             }
-            else {
-                webView.loadData(data: initData!, mimeType: initMimeType!, encoding: initEncoding!, baseUrl: initBaseUrl!)
-            }
+            
+            initLoad(initURL: initURL, initData: initData, initMimeType: initMimeType, initEncoding: initEncoding, initBaseUrl: initBaseUrl, initHeaders: initHeaders)
             
             navigationDelegate?.onBrowserCreated(uuid: uuid, webView: webView)
         }
@@ -132,6 +155,14 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         super.viewWillAppear(animated)
     }
     
+    func initLoad(initURL: URL?, initData: String?, initMimeType: String?, initEncoding: String?, initBaseUrl: String?, initHeaders: [String: String]?) {
+        if self.initData == nil {
+            loadUrl(url: self.initURL!, headers: self.initHeaders)
+        }
+        else {
+            webView.loadData(data: initData!, mimeType: initMimeType!, encoding: initEncoding!, baseUrl: initBaseUrl!)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -172,8 +203,8 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
     }
     
     func prepareConstraints () {
-        containerWebView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutAttribute.bottom, relatedBy: NSLayoutRelation.equal, toItem: self.view, attribute: NSLayoutAttribute.bottom, multiplier: 1, constant: 0)
-        containerWebView_TopFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.view, attribute: NSLayoutAttribute.top, multiplier: 1, constant: 0)
+        containerWebView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
+        containerWebView_TopFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
         
         webView.translatesAutoresizingMaskIntoConstraints = false
         let height = NSLayoutConstraint(item: webView, attribute: .height, relatedBy: .equal, toItem: containerWebView, attribute: .height, multiplier: 1, constant: 0)
@@ -183,8 +214,8 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         let bottomContraint = NSLayoutConstraint(item: webView, attribute: .bottomMargin, relatedBy: .equal, toItem: containerWebView, attribute: .bottomMargin, multiplier: 1, constant: 0)
         containerWebView.addConstraints([height, width, leftConstraint, rightConstraint, bottomContraint])
         
-        webView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.webView, attribute: NSLayoutAttribute.bottom, relatedBy: NSLayoutRelation.equal, toItem: self.containerWebView, attribute: NSLayoutAttribute.bottom, multiplier: 1, constant: 0)
-        webView_TopFullScreenConstraint = NSLayoutConstraint(item: self.webView, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.containerWebView, attribute: NSLayoutAttribute.top, multiplier: 1, constant: 0)
+        webView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.webView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.containerWebView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
+        webView_TopFullScreenConstraint = NSLayoutConstraint(item: self.webView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.containerWebView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
     }
     
     func prepareWebView() {
@@ -255,7 +286,7 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
     }
     
     func setWebViewFrame(_ frame: CGRect) {
-        print("Setting the WebView's frame to \(NSStringFromCGRect(frame))")
+        print("Setting the WebView's frame to \(NSCoder.string(for: frame))")
         webView.frame = frame
     }
     
@@ -273,27 +304,21 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         
         weak var weakSelf = self
         
-        // Run later to avoid the "took a long time" log message.
-        DispatchQueue.main.async(execute: {() -> Void in
-            if (weakSelf?.responds(to: #selector(getter: self.presentingViewController)))! {
-                weakSelf?.presentingViewController?.dismiss(animated: true, completion: {() -> Void in
-                    self.tmpWindow?.windowLevel = 0.0
-                    UIApplication.shared.delegate?.window??.makeKeyAndVisible()
-                    if (self.navigationDelegate != nil) {
-                        self.navigationDelegate?.browserExit(uuid: self.uuid)
-                    }
-                })
-            }
-            else {
-                weakSelf?.parent?.dismiss(animated: true, completion: {() -> Void in
-                    self.tmpWindow?.windowLevel = 0.0
-                    UIApplication.shared.delegate?.window??.makeKeyAndVisible()
-                    if (self.navigationDelegate != nil) {
-                        self.navigationDelegate?.browserExit(uuid: self.uuid)
-                    }
-                })
-            }
-        })
+        if (weakSelf?.responds(to: #selector(getter: self.presentingViewController)))! {
+            weakSelf?.presentingViewController?.dismiss(animated: true, completion: {() -> Void in
+                self.tmpWindow?.windowLevel = UIWindow.Level(rawValue: 0.0)
+                UIApplication.shared.delegate?.window??.makeKeyAndVisible()
+            })
+        }
+        else {
+            weakSelf?.parent?.dismiss(animated: true, completion: {() -> Void in
+                self.tmpWindow?.windowLevel = UIWindow.Level(rawValue: 0.0)
+                UIApplication.shared.delegate?.window??.makeKeyAndVisible()
+            })
+        }
+        if (self.navigationDelegate != nil) {
+            self.navigationDelegate?.browserExit(uuid: self.uuid)
+        }
     }
     
     @objc func goBack() {

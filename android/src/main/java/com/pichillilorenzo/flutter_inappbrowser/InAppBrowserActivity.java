@@ -1,6 +1,5 @@
 package com.pichillilorenzo.flutter_inappbrowser;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,6 +8,8 @@ import android.graphics.Picture;
 import android.graphics.drawable.ColorDrawable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,6 +17,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 
@@ -25,10 +29,9 @@ import com.pichillilorenzo.flutter_inappbrowser.InAppWebView.InAppWebViewOptions
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import io.flutter.app.FlutterActivity;
-import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.MethodChannel;
 import qiu.niorgai.StatusBarCompat;
 
@@ -60,6 +63,7 @@ public class InAppBrowserActivity extends AppCompatActivity {
 
     webView = findViewById(R.id.webView);
     webView.inAppBrowserActivity = this;
+    webView.registrar = InAppBrowserFlutterPlugin.inAppBrowser.registrar;
 
     Bundle b = getIntent().getExtras();
     uuid = b.getString("uuid");
@@ -74,7 +78,7 @@ public class InAppBrowserActivity extends AppCompatActivity {
     webViewOptions.parse(optionsMap);
     webView.options = webViewOptions;
 
-    InAppBrowserFlutterPlugin.webViewActivities.put(uuid, this);
+    InAppBrowserFlutterPlugin.inAppBrowser.webViewActivities.put(uuid, this);
 
     actionBar = getSupportActionBar();
 
@@ -96,7 +100,7 @@ public class InAppBrowserActivity extends AppCompatActivity {
 
     Map<String, Object> obj = new HashMap<>();
     obj.put("uuid", uuid);
-    InAppBrowserFlutterPlugin.channel.invokeMethod("onBrowserCreated", obj);
+    InAppBrowserFlutterPlugin.inAppBrowser.channel.invokeMethod("onBrowserCreated", obj);
 
   }
 
@@ -121,10 +125,10 @@ public class InAppBrowserActivity extends AppCompatActivity {
     if (!options.toolbarTop)
       actionBar.hide();
 
-    if (!options.toolbarTopBackgroundColor.isEmpty())
+    if (options.toolbarTopBackgroundColor != null && !options.toolbarTopBackgroundColor.isEmpty())
       actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(options.toolbarTopBackgroundColor)));
 
-    if (!options.toolbarTopFixedTitle.isEmpty())
+    if (options.toolbarTopFixedTitle != null && !options.toolbarTopFixedTitle.isEmpty())
       actionBar.setTitle(options.toolbarTopFixedTitle);
 
   }
@@ -260,7 +264,7 @@ public class InAppBrowserActivity extends AppCompatActivity {
       if (canGoBack())
         goBack();
       else if (options.closeOnCannotGoBack)
-        InAppBrowserFlutterPlugin.close(this, uuid, null);
+        InAppBrowserFlutterPlugin.inAppBrowser.close(this, uuid, null);
       return true;
     }
     return super.onKeyDown(keyCode, event);
@@ -360,7 +364,7 @@ public class InAppBrowserActivity extends AppCompatActivity {
   }
 
   public void closeButtonClicked(MenuItem item) {
-    InAppBrowserFlutterPlugin.close(this, uuid, null);
+    InAppBrowserFlutterPlugin.inAppBrowser.close(this, uuid, null);
   }
 
   public byte[] takeScreenshot() {
@@ -439,26 +443,26 @@ public class InAppBrowserActivity extends AppCompatActivity {
     return optionsMap;
   }
 
-  public void injectScriptCode(String source, MethodChannel.Result result) {
+  public void evaluateJavascript(String source, MethodChannel.Result result) {
     if (webView != null)
-      webView.injectScriptCode(source, result);
+      webView.evaluateJavascript(source, result);
     else
       result.success("");
   }
 
-  public void injectScriptFile(String urlFile) {
+  public void injectJavascriptFileFromUrl(String urlFile) {
     if (webView != null)
-      webView.injectScriptFile(urlFile);
+      webView.injectJavascriptFileFromUrl(urlFile);
   }
 
-  public void injectStyleCode(String source) {
+  public void injectCSSCode(String source) {
     if (webView != null)
-      webView.injectStyleCode(source);
+      webView.injectCSSCode(source);
   }
 
-  public void injectStyleFile(String urlFile) {
+  public void injectCSSFileFromUrl(String urlFile) {
     if (webView != null)
-      webView.injectStyleFile(urlFile);
+      webView.injectCSSFileFromUrl(urlFile);
   }
 
   public HashMap<String, Object> getCopyBackForwardList() {
@@ -477,4 +481,77 @@ public class InAppBrowserActivity extends AppCompatActivity {
     return true;
   }
 
+  public void startSafeBrowsing(MethodChannel.Result result) {
+    if (webView != null)
+      webView.startSafeBrowsing(result);
+    else
+      result.success(false);
+  }
+
+  public void setSafeBrowsingWhitelist(List<String> hosts, MethodChannel.Result result) {
+    if (webView != null)
+      webView.setSafeBrowsingWhitelist(hosts, result);
+    else
+      result.success(false);
+  }
+
+  public void clearCache() {
+    if (webView != null)
+      webView.clearAllCache();
+  }
+
+  public void clearSslPreferences() {
+    if (webView != null)
+      webView.clearSslPreferences();
+  }
+
+  public void clearClientCertPreferences(final MethodChannel.Result result) {
+    if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      webView.clearClientCertPreferences(new Runnable() {
+        @Override
+        public void run() {
+          result.success(true);
+        }
+      });
+    }
+    else
+      result.success(false);
+  }
+
+  public void findAllAsync(String find) {
+    if (webView != null)
+      webView.findAllAsync(find);
+  }
+
+  public void findNext(Boolean forward, MethodChannel.Result result) {
+    if (webView != null) {
+      webView.findNext(forward);
+      result.success(true);
+    }
+    else
+      result.success(false);
+  }
+
+  public void clearMatches(MethodChannel.Result result) {
+    if (webView != null) {
+      webView.clearMatches();
+      result.success(true);
+    }
+    else
+      result.success(false);
+  }
+
+  public void dispose() {
+    if (webView != null) {
+      webView.setWebChromeClient(new WebChromeClient());
+      webView.setWebViewClient(new WebViewClient() {
+        public void onPageFinished(WebView view, String url) {
+          webView.dispose();
+          webView.destroy();
+          webView = null;
+        }
+      });
+      webView.loadUrl("about:blank");
+    }
+  }
 }

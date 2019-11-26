@@ -1,3 +1,51 @@
+## 2.0.0
+
+- Merge "Avoid null pointer exception after webview is disposed" [#116](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/116) (thanks to [robsonfingo](https://github.com/robsonfingo))
+- Merge "Remove async call in close" [#119](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/119) (thanks to [benfingo](https://github.com/benfingo))
+- Merge "Android takeScreenshot does not work properly." [#122](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/122) (thanks to [PauloMelo](https://github.com/PauloMelo))
+- Merge "Resolving gradle error." [#144](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/144) (thanks to [Klingens13](https://github.com/Klingens13))
+- Merge "Create issue and pull request templates" [#150](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/150) (thanks to [deandreamatias](https://github.com/deandreamatias))
+- Merge "Fix abstract method error && swift version error" [#155](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/155) (thanks to [AlexVincent525](https://github.com/AlexVincent525))
+- Merge "migrating to swift 5.0" [#162](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/162) (thanks to [fattiger00](https://github.com/fattiger00))
+- Merge "Update readme example" [#178](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/178) (thanks to [SebastienBtr](https://github.com/SebastienBtr))
+- Merge "handle choose file callback in android" [#183](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/183) (thanks to [crazecoder](https://github.com/crazecoder))
+- Merge "add initialScale in android" [#186](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/186) (thanks to [crazecoder](https://github.com/crazecoder))
+- Added `horizontalScrollBarEnabled` and `verticalScrollBarEnabled` options to enable/disable the corresponding scrollbar of the WebView [#165](https://github.com/pichillilorenzo/flutter_inappbrowser/issues/165)
+- Added `onDownloadStart` event and `useOnDownloadStart` option: event fires when the WebView recognizes and starts a downloadable file.
+- Added `onLoadResourceCustomScheme` event and `resourceCustomSchemes` option to set custom schemes that WebView must handle to load resources
+- Added `onTargetBlank` event and `useOnTargetBlank` option to manage links with `target="_blank"`
+- Added `ContentBlocker`, `ContentBlockerTrigger` and `ContentBlockerAction` classes and the `contentBlockers` option that allows to define a set of rules to use to block content in the WebView
+- Added new WebView options: `minimumFontSize`, `debuggingEnabled`, `preferredContentMode`, `applicationNameForUserAgent`, `incognito`, `cacheEnabled`, `disableVerticalScroll`, `disableHorizontalScroll`
+- Added new Android WebView options: `allowContentAccess`, `allowFileAccess`, `allowFileAccessFromFileURLs`, `allowUniversalAccessFromFileURLs`, `appCachePath`, `blockNetworkImage`, `blockNetworkLoads`, `cacheMode`, `cursiveFontFamily`, `defaultFixedFontSize`, `defaultFontSize`, `defaultTextEncodingName`, `disabledActionModeMenuItems`, `fantasyFontFamily`, `fixedFontFamily`, `forceDark`, `geolocationEnabled`, `layoutAlgorithm`, `loadWithOverviewMode`, `loadsImagesAutomatically`, `minimumLogicalFontSize`, `needInitialFocus`, `offscreenPreRaster`, `sansSerifFontFamily`, `serifFontFamily`, `standardFontFamily`, `saveFormData`, `thirdPartyCookiesEnabled`, `hardwareAcceleration`
+- Added new iOS WebView options: `isFraudulentWebsiteWarningEnabled`, `selectionGranularity`, `dataDetectorTypes`, `sharedCookiesEnabled`
+- Added `onGeolocationPermissionsShowPrompt` event and `GeolocationPermissionShowPromptResponse` class (available only for Android)
+- Added `startSafeBrowsing`, `setSafeBrowsingWhitelist` and `getSafeBrowsingPrivacyPolicyUrl` methods (available only for Android)
+- Added `clearSslPreferences` and `clearClientCertPreferences` methods (available only for Android)
+- Added `onSafeBrowsingHit` event (available only for Android)
+- Added `onJsAlert`, `onJsConfirm` and `onJsPrompt` events to manage javascript popup dialogs
+- Added `onReceivedHttpAuthRequest` event
+- Added `clearCache`, `scrollTo`, `scrollBy`, `getHtml`, `injectJavascriptFileFromAsset` and `injectCSSFileFromAsset` methods method
+- Added `HttpAuthCredentialDatabase` class
+- Added `onReceivedServerTrustAuthRequest` and `onReceivedClientCertRequest` events to manage SSL requests
+- Added `onFindResultReceived` event, `findAllAsync`, `findNext` and `clearMatches` methods 
+- Added `shouldInterceptAjaxRequest`, `onAjaxReadyStateChange`, `onAjaxProgress` and `shouldInterceptFetchRequest` events with `useShouldInterceptAjaxRequest` and `useShouldInterceptFetchRequest` webview options
+- Added `onNavigationStateChange` and `onLoadHttpError` events
+- Fun: added `getTRexRunnerHtml` and `getTRexRunnerCss` methods to get html (with javascript) and css to recreate the Chromium's t-rex runner game 
+
+### BREAKING CHANGES
+- Deleted `WebResourceRequest` class
+- Updated `WebResourceResponse` class
+- Updated `ConsoleMessage` class
+- Updated `ConsoleMessageLevel` class
+- Updated `onLoadResource` event
+- Updated `CookieManager` class
+- WebView options are now available with the new corresponding classes: `InAppWebViewOptions`, `AndroidInAppWebViewOptions`, `iOSInAppWebViewOptions`, `InAppBrowserOptions`, `AndroidInAppBrowserOptions`, `iOSInAppBrowserOptions`, `AndroidChromeCustomTabsOptions` and `iOSSafariOptions`
+- Renamed `getFavicon` to `getFavicons`, now it returns a list of all favicons (`List<Favicon>`) found
+- Renamed `injectScriptFile` to `injectJavascriptFileFromUrl`
+- Renamed `injectScriptCode` to `evaluateJavascript`
+- Renamed `injectStyleCode` to `injectCSSCode`
+- Renamed `injectStyleFile` to `injectCSSFileFromUrl`
+
 ## 1.2.2
 
 - Merge "added a shared WKProcessPool for webview instances" [#198](https://github.com/pichillilorenzo/flutter_inappbrowser/pull/198) (thanks to [robertcnst](https://github.com/robertcnst))
