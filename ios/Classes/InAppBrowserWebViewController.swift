@@ -201,11 +201,26 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
     override func viewWillDisappear (_ animated: Bool) {
         super.viewWillDisappear(animated)
     }
+
+
+    override func viewWillLayoutSubviews(){
+        print("self.topLayoutGuide.length")
+        print(self.topLayoutGuide.length)
+        print("self.bottomLayoutGuide.length")
+        print(self.bottomLayoutGuide.length)
+        containerWebView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view.window, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: self.bottomLayoutGuide.length)
+        containerWebView_TopFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute:   NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view.window, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: -self.topLayoutGuide.length)
+        
+        if(browserOptions?.toolbarBottom  != true){
+            self.containerWebView_BottomFullScreenConstraint.isActive = true
+        }
+        if(browserOptions?.toolbarTop != true){
+            self.containerWebView_TopFullScreenConstraint.isActive = true
+        }
+        super.viewWillLayoutSubviews()
+    }
     
     func prepareConstraints () {
-        containerWebView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
-        containerWebView_TopFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-        
         webView.translatesAutoresizingMaskIntoConstraints = false
         let height = NSLayoutConstraint(item: webView, attribute: .height, relatedBy: .equal, toItem: containerWebView, attribute: .height, multiplier: 1, constant: 0)
         let width = NSLayoutConstraint(item: webView, attribute: .width, relatedBy: .equal, toItem: containerWebView, attribute: .width, multiplier: 1, constant: 0)
@@ -237,7 +252,6 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         else {
             self.toolbarTop.isHidden = true
             self.toolbarTop_BottomToWebViewTopConstraint.isActive = false
-            self.containerWebView_TopFullScreenConstraint.isActive = true
             self.webView_TopFullScreenConstraint.isActive = true
         }
         
@@ -250,7 +264,6 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         else {
             self.toolbarBottom.isHidden = true
             self.toolbarBottom_TopToWebViewBottomConstraint.isActive = false
-            self.containerWebView_BottomFullScreenConstraint.isActive = true
             self.webView_BottomFullScreenConstraint.isActive = true
         }
         
