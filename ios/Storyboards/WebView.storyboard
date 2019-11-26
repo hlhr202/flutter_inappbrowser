@@ -10,7 +10,7 @@
         <!--In App Browser Web View Controller-->
         <scene sceneID="PeV-E5-ivI">
             <objects>
-                <viewController storyboardIdentifier="viewController" modalPresentationStyle="fullScreen" id="zfm-Ja-gep" customClass="InAppBrowserWebViewController" customModule="flutter_inappbrowser" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="viewController" id="zfm-Ja-gep" customClass="InAppBrowserWebViewController" customModule="flutter_inappbrowser" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="eCU-xC-qdo"/>
                         <viewControllerLayoutGuide type="bottom" id="dUM-I7-PRF"/>

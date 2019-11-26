@@ -229,12 +229,6 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
         if browserOptions?.closeButtonColor != "" {
             closeButton.tintColor = color(fromHexString: (browserOptions?.closeButtonColor)!)
         }
-        
-        self.modalPresentationStyle = UIModalPresentationStyle(rawValue: (browserOptions?.presentationStyle)!)!
-        self.modalTransitionStyle = UIModalTransitionStyle(rawValue: (browserOptions?.transitionStyle)!)!
-        if #available(iOS 13.0, *) {
-            self.isModalInPresentation = true // available in IOS13
-        }
     }
     
     func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
