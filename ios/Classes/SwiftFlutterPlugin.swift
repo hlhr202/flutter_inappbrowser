@@ -257,6 +257,12 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
                 self.clearCache(uuid: uuid)
                 result(true)
                 break
+            case "setLightStatusBar":
+                self.setLightStatusBar(uuid: uuid)
+                break
+            case "setDarkStatusBar":
+                self.setDarkStatusBar(uuid: uuid)
+                break
             default:
                 result(FlutterMethodNotImplemented)
                 break
@@ -815,7 +821,18 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
             webViewController!.webView.clearCache()
         }
     }
+
+    func setLightStatusBar(uuid: String) {
+        if #available(iOS 13.0, *){
+            UIApplication.shared.statusBarStyle = UIStatusBarStyle.lightContent
+        }
+    }
     
+    func setDarkStatusBar(uuid: String) {
+        if #available(iOS 13.0, *){
+            UIApplication.shared.statusBarStyle = UIStatusBarStyle.darkContent
+        }
+    }
 }
 
 // Helper function inserted by Swift 4.2 migrator.
