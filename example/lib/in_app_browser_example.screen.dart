@@ -97,6 +97,7 @@ class _InAppBrowserExampleScreenState extends State<InAppBrowserExampleScreen> {
                         useOnLoadResource: true,
                       ),
                     ),
+                    // inAppBrowserOptions: InAppBrowserOptions(toolbarTop: false),
                   ),
                 );
                 Future.delayed(Duration(seconds: 2), () {

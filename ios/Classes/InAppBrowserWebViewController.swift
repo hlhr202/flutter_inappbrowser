@@ -204,8 +204,8 @@ class InAppBrowserWebViewController: UIViewController, UIScrollViewDelegate, WKU
 
 
     override func viewWillLayoutSubviews(){
-        containerWebView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view.window, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: self.bottomLayoutGuide.length)
-        containerWebView_TopFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute:   NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view.window, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: -self.topLayoutGuide.length)
+        containerWebView_BottomFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: self.bottomLayoutGuide.length)
+        containerWebView_TopFullScreenConstraint = NSLayoutConstraint(item: self.containerWebView, attribute:   NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: -self.topLayoutGuide.length)
         
         if(browserOptions?.toolbarBottom  != true){
             self.containerWebView_BottomFullScreenConstraint.isActive = true
