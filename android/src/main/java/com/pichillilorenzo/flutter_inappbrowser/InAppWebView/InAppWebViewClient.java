@@ -136,8 +136,8 @@ public class InAppWebViewClient extends WebViewClient {
 
     InAppWebView webView = (InAppWebView) view;
 
-    String js = InAppWebView.consoleLogJS.replaceAll("[\r\n]+", "");
-    js += JavaScriptBridgeInterface.flutterInAppBroserJSClass.replaceAll("[\r\n]+", "");
+//    String js = InAppWebView.consoleLogJS.replaceAll("[\r\n]+", "");
+    String js = JavaScriptBridgeInterface.flutterInAppBroserJSClass.replaceAll("[\r\n]+", "");
 
     if (webView.options.useShouldInterceptAjaxRequest) {
       js += InAppWebView.interceptAjaxRequestsJS.replaceAll("[\r\n]+", "");
