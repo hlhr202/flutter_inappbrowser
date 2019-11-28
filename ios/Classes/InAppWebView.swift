@@ -808,9 +808,6 @@ public class InAppWebView: WKWebView, UIScrollViewDelegate, WKUIDelegate, WKNavi
         if #available(iOS 9.0, *) {
             allowsLinkPreview = (options?.allowsLinkPreview)!
             configuration.allowsPictureInPictureMediaPlayback = (options?.allowsPictureInPictureMediaPlayback)!
-            if (options?.applicationNameForUserAgent != nil && (options?.applicationNameForUserAgent)! != "") {
-                configuration.applicationNameForUserAgent = (options?.applicationNameForUserAgent)!
-            }
             if (options?.userAgent != nil && (options?.userAgent)! != "") {
                 customUserAgent = (options?.userAgent)!
             }
@@ -905,6 +902,12 @@ public class InAppWebView: WKWebView, UIScrollViewDelegate, WKUIDelegate, WKNavi
             }
         } else {
             // Fallback on earlier versions
+        }
+
+        if #available(iOS 9.0, *) {
+            if (options?.applicationNameForUserAgent != nil && (options?.applicationNameForUserAgent)! != "") {
+                configuration.applicationNameForUserAgent = (options?.applicationNameForUserAgent)!
+            }
         }
         
         return configuration

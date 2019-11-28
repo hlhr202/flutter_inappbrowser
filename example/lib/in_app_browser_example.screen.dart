@@ -87,17 +87,21 @@ class _InAppBrowserExampleScreenState extends State<InAppBrowserExampleScreen> {
         body: Center(
           child: RaisedButton(
               onPressed: () {
-                widget.browser.openFile(
-                    assetFilePath: "assets/index.html",
-                    options: InAppBrowserClassOptions(
-                        inAppBrowserOptions: InAppBrowserOptions(toolbarTop: false),
-                        inAppWebViewWidgetOptions: InAppWebViewWidgetOptions(
-                            inAppWebViewOptions: InAppWebViewOptions(
-                            useShouldOverrideUrlLoading: true,
-                            useOnLoadResource: true,
-                    ))));
+                widget.browser.open(
+                  url: "https://flutter.dev/",
+                  // widget.browser.openFile(assetFilePath: "assets/index.html",
+                  options: InAppBrowserClassOptions(
+                    inAppWebViewWidgetOptions: InAppWebViewWidgetOptions(
+                      inAppWebViewOptions: InAppWebViewOptions(
+                        useShouldOverrideUrlLoading: true,
+                        useOnLoadResource: true,
+                      ),
+                    ),
+                    // inAppBrowserOptions: InAppBrowserOptions(toolbarTop: false),
+                  ),
+                );
                 Future.delayed(Duration(seconds: 2), () {
-                  widget.browser.setLightStatusBar();
+                  widget.browser.setDarkStatusBar();
                 });
               },
               child: Text("Open Webview Browser")),
