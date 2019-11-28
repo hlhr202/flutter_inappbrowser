@@ -136,8 +136,8 @@ public class InAppWebViewClient extends WebViewClient {
 
     InAppWebView webView = (InAppWebView) view;
 
-//    String js = InAppWebView.consoleLogJS.replaceAll("[\r\n]+", "");
-    String js = JavaScriptBridgeInterface.flutterInAppBroserJSClass.replaceAll("[\r\n]+", "");
+    String js = InAppWebView.consoleLogJS.replaceAll("[\r\n]+", "");
+    js += JavaScriptBridgeInterface.flutterInAppBroserJSClass.replaceAll("[\r\n]+", "");
 
     if (webView.options.useShouldInterceptAjaxRequest) {
       js += InAppWebView.interceptAjaxRequestsJS.replaceAll("[\r\n]+", "");
@@ -191,7 +191,10 @@ public class InAppWebViewClient extends WebViewClient {
     view.clearFocus();
     view.requestFocus();
 
-    String js = InAppWebView.platformReadyJS.replaceAll("[\r\n]+", "");
+    // workaround for some very strange browser while the js cannot be run at page started
+    String js = JavaScriptBridgeInterface.flutterInAppBroserJSClass.replaceAll("[\r\n]+", "");
+
+    js += InAppWebView.platformReadyJS.replaceAll("[\r\n]+", "");
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       webView.evaluateJavascript(js, (ValueCallback<String>) null);
