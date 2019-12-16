@@ -824,13 +824,13 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
 
     func setLightStatusBar(uuid: String) {
         if #available(iOS 13.0, *){
-            UIApplication.shared.statusBarStyle = UIStatusBarStyle.lightContent
+            UIApplication.shared.statusBarStyle = UIStatusBarStyle.darkContent
         }
     }
     
     func setDarkStatusBar(uuid: String) {
         if #available(iOS 13.0, *){
-            UIApplication.shared.statusBarStyle = UIStatusBarStyle.darkContent
+            UIApplication.shared.statusBarStyle = UIStatusBarStyle.lightContent
         }
     }
 }
