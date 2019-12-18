@@ -848,13 +848,13 @@ public class InAppWebView: WKWebView, UIScrollViewDelegate, WKUIDelegate, WKNavi
             configuration.userContentController.addUserScript(interceptFetchRequestsJSScript)
         }
         
-        if #available(iOS 9.0, *) {
-            if ((options?.incognito)!) {
-                configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
-            } else if ((options?.cacheEnabled)!) {
-                configuration.websiteDataStore = WKWebsiteDataStore.default()
-            }
-        }
+        // if #available(iOS 9.0, *) {
+        //     if ((options?.incognito)!) {
+        //         configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        //     } else if ((options?.cacheEnabled)!) {
+        //         configuration.websiteDataStore = WKWebsiteDataStore.default()
+        //     }
+        // }
         
         if #available(iOS 11.0, *) {
             if((options?.sharedCookiesEnabled)!) {
@@ -971,6 +971,14 @@ public class InAppWebView: WKWebView, UIScrollViewDelegate, WKUIDelegate, WKNavi
             }
         } else {
             // Fallback on earlier versions
+        }
+        
+        if #available(iOS 9.0, *) {
+            if ((options?.incognito)!) {
+                configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+            } else if ((options?.cacheEnabled)!) {
+                configuration.websiteDataStore = WKWebsiteDataStore.default()
+            }
         }
 
         if #available(iOS 9.0, *) {
